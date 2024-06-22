@@ -1,1 +1,8 @@
-Topic
+@inject State State;
+
+<div class="topic">
+    <h1>Topic <button>Sync</button></h1> 
+    @foreach (var partition in State.Partitions) {
+        <Partition />
+    }
+</div>
