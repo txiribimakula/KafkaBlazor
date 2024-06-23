@@ -3,9 +3,11 @@
 
 <div class="topic">
     <h1>Topic </h1> <button @onclick="Sync">Sync</button>
-    @foreach (var partition in State.Partitions) {
-        <Partition />
-    }
+    <div class="partitions">
+        @foreach (var partition in State.Partitions) {
+            <Partition />
+        }
+    </div>
 </div>
 
 @code {

@@ -1,0 +1,12 @@
+.topic {
+    background-color: lightgray;
+    margin: 15px;
+    padding: 10px;
+    border-style: solid;
+    border-color: gray;
+}
+
+.partitions {
+    display: grid;
+    gap: 15px;
+}
