@@ -2,7 +2,7 @@
 @inject State State;
 
 <div class="topic">
-    <h1>Topic <button @onclick="Sync">Sync</button></h1>
+    <h3>Topic <button @onclick="Sync">Sync</button></h3>
     <div class="partitions">
         @foreach (var partition in State.Partitions) {
             <Partition Messages="@partition.Messages" />
