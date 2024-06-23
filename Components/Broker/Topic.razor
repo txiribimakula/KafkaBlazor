@@ -2,8 +2,14 @@
 @inject State State;
 
 <div class="topic">
-    <h1>Topic <button>Sync</button></h1> 
+    <h1>Topic </h1> <button @onclick="Sync">Sync</button>
     @foreach (var partition in State.Partitions) {
-        <Partition />
+        State.Partitions.Add(new Model.Partition());
     }
 </div>
+
+@code {
+    private void Sync() {
+        Console.WriteLine("synced");
+    }
+}
