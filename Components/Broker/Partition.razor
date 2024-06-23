@@ -1,3 +1,16 @@
 @namespace BlazorApp.Components
 
-<div class="partition">Partition</div>
+<div class="partition">
+    <h3>Partition</h3>
+
+    <div class="messages">
+        @foreach (var message in Messages) {
+            <Message/>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Model.Message> Messages { get; set; } = new List<Model.Message>();
+}

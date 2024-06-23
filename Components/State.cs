@@ -14,4 +14,8 @@ public class State
     public void AddPartition() {
         partitions.Add(new Model.Partition());
     }
+
+    public void AddMessage(int partitionIndex) {
+        partitions[partitionIndex].Messages.Add(new Model.Message());
+    }
 }
