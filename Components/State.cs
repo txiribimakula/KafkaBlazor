@@ -10,12 +10,21 @@ public class State
     private List<Model.Partition> partitions;
 
     public IEnumerable<Model.Partition> Partitions => partitions;
+    
+    public event EventHandler StateChanged;
+
+    private void StateHasChanged() {
+        StateChanged.Invoke(this, EventArgs.Empty);
+    }
+
 
     public void AddPartition() {
         partitions.Add(new Model.Partition());
+        StateHasChanged();
     }
 
-    public void AddMessage(int partitionIndex) {
-        partitions[partitionIndex].Messages.Add(new Model.Message("new content"));
+    public void AddMessage(int partitionIndex, string message) {
+        partitions[partitionIndex].Messages.Add(new Model.Message(message));
+        StateHasChanged();
     }
 }

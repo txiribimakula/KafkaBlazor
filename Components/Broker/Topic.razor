@@ -11,6 +11,16 @@
 </div>
 
 @code {
+    protected override void OnInitialized() {
+        base.OnInitialized();
+
+        State.StateChanged += OnStateChanged;
+    }
+
+    private void OnStateChanged(object? sender, EventArgs args) {
+        InvokeAsync(StateHasChanged);
+    }
+
     private void Sync() {
         Console.WriteLine("syncing...");
         State.AddPartition();
