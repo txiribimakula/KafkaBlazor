@@ -1,3 +1,5 @@
+namespace BlazorApp;
+
 public class State
 {
     public State()
