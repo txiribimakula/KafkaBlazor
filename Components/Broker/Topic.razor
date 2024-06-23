@@ -4,12 +4,13 @@
 <div class="topic">
     <h1>Topic </h1> <button @onclick="Sync">Sync</button>
     @foreach (var partition in State.Partitions) {
-        State.Partitions.Add(new Model.Partition());
+        <Partition />
     }
 </div>
 
 @code {
     private void Sync() {
-        Console.WriteLine("synced");
+        Console.WriteLine("syncing...");
+        State.AddPartition();
     }
 }
