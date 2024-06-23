@@ -5,12 +5,12 @@
 
     <div class="messages">
         @foreach (var message in Messages) {
-            <Message/>
+            <Message Data="@message"/>
         }
     </div>
 </div>
 
 @code {
     [Parameter]
-    public List<Model.Message> Messages { get; set; } = new List<Model.Message>();
+    public List<Model.Message> Messages { get; set; }
 }

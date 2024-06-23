@@ -1,4 +1,5 @@
 .message {
+    padding: 5px;
     width: 100px;
     height: 125px;
     background-color: rgba(151, 151, 0, 0.315);

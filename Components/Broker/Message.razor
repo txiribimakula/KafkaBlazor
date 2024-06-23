@@ -1,3 +1,8 @@
 @namespace BlazorApp.Components
 
-<div class="message">Message</div>
+<div class="message">@Data.Content</div>
+
+@code {
+    [Parameter]
+    public Model.Message Data { get; set; }
+}

@@ -16,6 +16,6 @@ public class State
     }
 
     public void AddMessage(int partitionIndex) {
-        partitions[partitionIndex].Messages.Add(new Model.Message());
+        partitions[partitionIndex].Messages.Add(new Model.Message("new content"));
     }
 }

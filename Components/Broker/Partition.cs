@@ -4,8 +4,8 @@ public class Partition {
     public Partition()
     {
         Messages = new List<Message>() {
-            new Message(),
-            new Message()
+            new Message("content 1"),
+            new Message("content 2")
         };
     }
 
