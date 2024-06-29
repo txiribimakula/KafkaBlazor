@@ -8,12 +8,14 @@
 <div class="producer">
     <h3>Producer</h3>
     <input type="text" placeholder="message" @bind="messageValue" />
+    <input type="text" placeholder="key" @bind="messageKey" />
     <button @onclick="Produce">Produce</button>
 </div>
 
 @code {
-    private IProducer<int, string>? producer;
+    private IProducer<string, string>? producer;
     private string messageValue = string.Empty;
+    private string messageKey = string.Empty;
 
     protected override void OnInitialized()
     {
@@ -30,18 +32,18 @@
             StickyPartitioningLingerMs = 0,
         };
 
-        producer = new ProducerBuilder<int, string>(producerConfig).Build();
+        producer = new ProducerBuilder<string, string>(producerConfig).Build();
     }
 
     private async void Produce() {
         if(producer != null)
         {
-            var newMessage = new Model.Message(this.messageValue);
+            var newMessage = new Model.Message(this.messageKey, this.messageValue);
             var produced = await producer.ProduceAsync(
                 "topic.pruebas.con.3.particiones",
-                new Confluent.Kafka.Message<int, string>
+                new Confluent.Kafka.Message<string, string>
                     {
-                        Key = 0,
+                        Key = newMessage.Key,
                         Value = JsonSerializer.Serialize(newMessage)
                     }
             );
