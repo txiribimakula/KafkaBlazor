@@ -1,17 +1,52 @@
 @namespace BlazorApp.Components
+@using Confluent.Kafka
+@using System.Text.Json
 
 @inject State State;
+@inject KafkaSettings KafkaSettings;
 
 <div class="producer">
     <h3>Producer</h3>
-    <input type="text" placeholder="message" @bind="message" />
+    <input type="text" placeholder="message" @bind="messageValue" />
     <button @onclick="Produce">Produce</button>
 </div>
 
 @code {
-    private string message = string.Empty;
+    private IProducer<int, string>? producer;
+    private string messageValue = string.Empty;
 
-    private void Produce() {
-        State.AddMessage(0, this.message);
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        var producerConfig = new ProducerConfig
+        {
+            BootstrapServers = KafkaSettings.BootstrapServers,
+            SaslUsername = KafkaSettings.SaslUsername,
+            SaslPassword = KafkaSettings.SaslPassword,
+            SecurityProtocol = SecurityProtocol.SaslSsl,
+            SaslMechanism = SaslMechanism.Plain,
+            Acks = Acks.All,
+            StickyPartitioningLingerMs = 0,
+        };
+
+        producer = new ProducerBuilder<int, string>(producerConfig).Build();
+    }
+
+    private async void Produce() {
+        if(producer != null)
+        {
+            var newMessage = new Model.Message(this.messageValue);
+            var produced = await producer.ProduceAsync(
+                "topic.pruebas.con.3.particiones",
+                new Confluent.Kafka.Message<int, string>
+                    {
+                        Key = 0,
+                        Value = JsonSerializer.Serialize(newMessage)
+                    }
+            );
+
+            State.AddMessage(0, newMessage);
+        }
     }
 }

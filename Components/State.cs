@@ -23,8 +23,8 @@ public class State
         StateHasChanged();
     }
 
-    public void AddMessage(int partitionIndex, string message) {
-        partitions[partitionIndex].Messages.Add(new Model.Message(message));
+    public void AddMessage(int partitionIndex, Model.Message message) {
+        partitions[partitionIndex].Messages.Add(message);
         StateHasChanged();
     }
 

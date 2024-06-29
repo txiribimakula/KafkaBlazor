@@ -3,15 +3,15 @@ using BlazorApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddSingleton<State>();
-
 var settings = new KafkaSettings();
 builder.Configuration.Bind("Kafka", settings);
 builder.Services.AddSingleton(settings);
+
+builder.Services.AddSingleton<State>();
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
 
 var app = builder.Build();
 

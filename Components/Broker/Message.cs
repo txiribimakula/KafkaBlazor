@@ -1,10 +1,10 @@
 namespace BlazorApp.Model;
 
 public class Message {
-    public Message(string content)
+    public Message(string value)
     {
-        Content = content;
+        Value = value;
     }
 
-    public string Content { get; set; }
+    public string Value { get; set; }
 }
