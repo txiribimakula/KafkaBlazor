@@ -27,4 +27,9 @@ public class State
         partitions[partitionIndex].Messages.Add(new Model.Message(message));
         StateHasChanged();
     }
+
+    public void Clear() {
+        partitions.Clear();
+        StateHasChanged();
+    }
 }
