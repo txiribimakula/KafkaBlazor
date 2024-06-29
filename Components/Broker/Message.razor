@@ -1,6 +1,11 @@
 @namespace BlazorApp.Components
 
-<div class="message">@Data.Value</div>
+<div class="message">
+    <div>
+        key: @Data.Key
+    </div>
+    @Data.Value
+</div>
 
 @code {
     [Parameter]
