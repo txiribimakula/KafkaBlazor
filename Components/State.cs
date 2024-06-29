@@ -2,6 +2,8 @@ namespace BlazorApp;
 
 public class State
 {
+    public static string[] ExistingTopics = new string[] { "topic.pruebas.con.1.particion", "topic.pruebas.con.3.particiones" };
+
     public State()
     {
         partitions = new List<Model.Partition>();

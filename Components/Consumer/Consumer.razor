@@ -1,5 +1,96 @@
 @namespace BlazorApp.Components
+@using Confluent.Kafka
+@using System.Text.Json
+@inject KafkaSettings KafkaSettings
+@inject State State
 
 <div class="consumer">
     <h3>Consumer</h3>
+    <select @bind="Topic">
+        @foreach (var existingTopic in State.ExistingTopics)
+        {
+            <option value="@existingTopic">@existingTopic</option>
+        }
+    </select>
+    <button @onclick="Consume">Consume</button>
+    <button @onclick="Close">Close</button>
+    <div>@Log</div>
 </div>
+
+@code {
+    public string Topic { get; set; } = State.ExistingTopics[0];
+
+    public string Log { get; set; }
+
+    private CancellationTokenSource? cancellationTokenSource;
+
+    private IConsumer<Ignore, string>? consumer;
+
+    private async void Consume()
+    {
+        cancellationTokenSource = new CancellationTokenSource();
+
+        var config = new ConsumerConfig
+        {
+            BootstrapServers = KafkaSettings.BootstrapServers,
+            SaslUsername = KafkaSettings.SaslUsername,
+            SaslPassword = KafkaSettings.SaslPassword,
+            SecurityProtocol = SecurityProtocol.SaslSsl,
+            SaslMechanism = SaslMechanism.Plain,
+            GroupId = "temporary",
+            AutoOffsetReset = AutoOffsetReset.Latest,
+            EnableAutoCommit = false,
+        };
+
+        using (consumer = new ConsumerBuilder<Ignore, string>(config)
+        .SetPartitionsAssignedHandler((consumer, partitions) =>
+        {
+            Console.WriteLine("assigned");
+        })
+        .SetPartitionsRevokedHandler((consumer, partitions) =>
+        {
+            Console.WriteLine("revoked");
+        })
+        .Build())
+        {
+            consumer.Subscribe(Topic);
+
+            await Task.Run(() =>
+            {
+                while(!cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        Log = "consuming...";
+                        InvokeAsync(StateHasChanged);
+                        var consumeResult = consumer.Consume(cancellationTokenSource.Token);
+                        var consumeMessage = JsonSerializer.Deserialize<Model.Message>(consumeResult.Message.Value);
+                        Log = "handling...";
+                        InvokeAsync(StateHasChanged);
+                        cancellationTokenSource.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(3));
+                        Log = "handled";
+
+                        if (cancellationTokenSource.Token.IsCancellationRequested)
+                        {
+                            throw new OperationCanceledException();
+                        }
+
+                        consumer.Commit(consumeResult);
+                        Log = "committed";
+                        InvokeAsync(StateHasChanged);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Log = "OperationCanceledException";
+                        InvokeAsync(StateHasChanged);
+                    }
+                }
+            });
+        };
+    }
+
+    private void Close()
+    {
+        cancellationTokenSource?.Cancel();
+    }
+}
