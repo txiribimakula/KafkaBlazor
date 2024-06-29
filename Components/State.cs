@@ -17,7 +17,6 @@ public class State
         StateChanged?.Invoke(this, EventArgs.Empty);
     }
 
-
     public void AddPartition(int index) {
         partitions.Add(new Model.Partition(index));
         StateHasChanged();
