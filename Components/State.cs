@@ -11,10 +11,10 @@ public class State
 
     public IEnumerable<Model.Partition> Partitions => partitions;
     
-    public event EventHandler StateChanged;
+    public event EventHandler? StateChanged;
 
     private void StateHasChanged() {
-        StateChanged.Invoke(this, EventArgs.Empty);
+        StateChanged?.Invoke(this, EventArgs.Empty);
     }
 
 
