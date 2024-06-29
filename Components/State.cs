@@ -18,8 +18,8 @@ public class State
     }
 
 
-    public void AddPartition() {
-        partitions.Add(new Model.Partition());
+    public void AddPartition(int index) {
+        partitions.Add(new Model.Partition(index));
         StateHasChanged();
     }
 

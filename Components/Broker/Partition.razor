@@ -1,10 +1,11 @@
 @namespace BlazorApp.Components
 
 <div class="partition">
-    <h3>Partition</h3>
+    <h3>Partition @Data?.Index</h3>
 
     <div class="messages">
-        @foreach (var message in Messages) {
+        @foreach (var message in Data?.Messages ?? Enumerable.Empty<Model.Message>())
+        {
             <Message Data="@message"/>
         }
     </div>
@@ -12,5 +13,5 @@
 
 @code {
     [Parameter]
-    public List<Model.Message> Messages { get; set; } = new List<Model.Message>();
+    public Model.Partition? Data { get; set; }
 }

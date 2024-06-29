@@ -7,7 +7,7 @@
     <h3>Topic <button @onclick="Sync">Sync</button></h3>
     <div class="partitions">
         @foreach (var partition in State.Partitions) {
-            <Partition Messages="@partition.Messages" />
+            <Partition Data="@partition" />
         }
     </div>
 </div>
@@ -44,7 +44,7 @@
         {
             foreach (var partition in partitions)
             {
-                State.AddPartition();
+                State.AddPartition(partition.Partition.Value);
             }
             InvokeAsync(StateHasChanged);
             cancellationTokenSource.Cancel();
