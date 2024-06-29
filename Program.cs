@@ -9,6 +9,10 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton<State>();
 
+var settings = new KafkaSettings();
+builder.Configuration.Bind("Kafka", settings);
+builder.Services.AddSingleton(settings);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

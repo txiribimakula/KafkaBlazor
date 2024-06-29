@@ -1,5 +1,7 @@
 @namespace BlazorApp.Components
+@using Confluent.Kafka
 @inject State State;
+@inject KafkaSettings KafkaSettings
 
 <div class="topic">
     <h3>Topic <button @onclick="Sync">Sync</button></h3>
@@ -22,8 +24,45 @@
     }
 
     private void Sync() {
-        Console.WriteLine("syncing...");
         State.Clear();
-        State.AddPartition();
+
+        var partitionSyncConsumerConfig = new ConsumerConfig
+        {
+            BootstrapServers = KafkaSettings.BootstrapServers,
+            SaslUsername = KafkaSettings.SaslUsername,
+            SaslPassword = KafkaSettings.SaslPassword,
+            SecurityProtocol = SecurityProtocol.SaslSsl,
+            SaslMechanism = SaslMechanism.Plain,
+            GroupId = "sync-partitions",
+            AutoOffsetReset = AutoOffsetReset.Earliest,
+            EnableAutoCommit = false,
+        };
+
+        var cancellationTokenSource = new CancellationTokenSource();
+        using (var consumer = new ConsumerBuilder<Ignore, string>(partitionSyncConsumerConfig)
+        .SetPartitionsAssignedHandler((consumer, partitions) =>
+        {
+            foreach (var partition in partitions)
+            {
+                State.AddPartition();
+            }
+            InvokeAsync(StateHasChanged);
+            cancellationTokenSource.Cancel();
+        }).Build())
+        {
+            consumer.Subscribe("topic.pruebas.con.3.particiones");
+            try
+            {
+                consumer.Consume(cancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                consumer.Close();
+            }
+            catch (ConsumeException)
+            {
+                consumer.Close();
+            }
+        }
     }
 }
