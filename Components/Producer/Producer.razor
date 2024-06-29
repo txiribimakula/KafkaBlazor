@@ -46,7 +46,7 @@
                     }
             );
 
-            State.AddMessage(0, newMessage);
+            State.AddMessage(produced.Partition.Value, newMessage);
         }
     }
 }
