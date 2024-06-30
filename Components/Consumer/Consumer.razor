@@ -96,7 +96,14 @@
                     {
                         try
                         {
-                            Logs.Add(new Log(LogLevel.Information, "consuming on partitions [" + string.Join(",", Partitions) + "]..."));
+                            if (Partitions.Count() == 0)
+                            {
+                                Logs.Add(new Log(LogLevel.Warning, "consuming waiting for partition assignment..."));
+                            }
+                            else
+                            {
+                                Logs.Add(new Log(LogLevel.Information, "consuming on partitions [" + string.Join(",", Partitions) + "]..."));
+                            }
                             InvokeAsync(StateHasChanged);
                             var consumeResult = consumer.Consume(cancellationTokenSource.Token);
                             var consumeMessage = JsonSerializer.Deserialize<Model.Message>(consumeResult.Message.Value);
