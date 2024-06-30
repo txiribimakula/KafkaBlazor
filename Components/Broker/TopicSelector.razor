@@ -8,8 +8,15 @@
 </select>
 
 @code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        TopicChanged.InvokeAsync(State.ExistingTopics[0]);
+    }
+
     [Parameter]
-    public string Topic { get; set; } = State.ExistingTopics[0];
+    public string? Topic { get; set; }
 
     [Parameter]
     public EventCallback<string> TopicChanged { get; set; }
