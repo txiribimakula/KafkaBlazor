@@ -20,7 +20,7 @@
 @code {
     public string Topic { get; set; } = State.ExistingTopics[0];
 
-    public string Log { get; set; }
+    public string Log { get; set; } = string.Empty;
 
     private CancellationTokenSource? cancellationTokenSource;
 
