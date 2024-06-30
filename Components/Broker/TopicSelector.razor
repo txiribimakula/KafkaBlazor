@@ -16,14 +16,18 @@
 
     private void OnTopicChanged(ChangeEventArgs e)
     {
-        if (e.Value != null)
+        if(e.Value == null)
         {
-            var valueToString = e.Value.ToString();
-            if(valueToString != null)
-            {
-                Topic = valueToString;
-                TopicChanged.InvokeAsync(valueToString);
-            }
+            return;
         }
+
+        var valueToString = e.Value.ToString();
+        if(valueToString == null)
+        {
+            return;
+        }
+
+        Topic = valueToString;
+        TopicChanged.InvokeAsync(valueToString);
     }
 }
