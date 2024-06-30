@@ -1,0 +1,30 @@
+﻿@namespace BlazorApp.Components
+
+<select @bind="Topic">
+    @foreach (var existingTopic in State.ExistingTopics)
+    {
+        <option value="@existingTopic">@existingTopic</option>
+    }
+</select>
+
+@code {
+    private string topic;
+
+    [Parameter]
+    public string Topic
+    {
+        get
+        {
+            return topic;
+        }
+        set
+        {
+            if (topic == value) return;
+            topic = value;
+            TopicChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> TopicChanged { get; set; }
+}

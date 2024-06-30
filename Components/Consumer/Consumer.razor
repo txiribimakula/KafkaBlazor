@@ -6,12 +6,7 @@
 
 <div class="consumer">
     <h3>Consumer</h3>
-    <select @bind="Topic">
-        @foreach (var existingTopic in State.ExistingTopics)
-        {
-            <option value="@existingTopic">@existingTopic</option>
-        }
-    </select>
+    <TopicSelector @bind-Topic="@Topic" />
     <button @onclick="Consume">Consume</button>
     <button @onclick="Close">Close</button>
     <div>@Log</div>

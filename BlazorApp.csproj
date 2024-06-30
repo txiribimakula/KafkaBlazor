@@ -10,4 +10,16 @@
     <PackageReference Include="Confluent.Kafka" Version="2.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\Broker\TopicSelector.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Components\Broker\TopicSelector.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Components\Broker\TopicSelector.razor" />
+  </ItemGroup>
+
 </Project>
