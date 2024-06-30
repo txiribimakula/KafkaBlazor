@@ -9,6 +9,7 @@
     <h3>Producer</h3>
     <input type="text" placeholder="message" @bind="messageValue" />
     <input type="text" placeholder="key" @bind="messageKey" />
+    <TopicSelector @bind-Topic="Topic" />
     <button @onclick="Produce">Produce</button>
 </div>
 
@@ -16,6 +17,7 @@
     private IProducer<string, string>? producer;
     private string messageValue = string.Empty;
     private string messageKey = string.Empty;
+    public string? Topic { get; set; }
 
     protected override void OnInitialized()
     {
@@ -40,7 +42,7 @@
         {
             var newMessage = new Model.Message(this.messageKey, this.messageValue);
             var produced = await producer.ProduceAsync(
-                "topic.pruebas.con.3.particiones",
+                Topic,
                 new Confluent.Kafka.Message<string, string>
                     {
                         Key = newMessage.Key,

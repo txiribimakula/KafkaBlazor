@@ -4,7 +4,7 @@
 @inject KafkaSettings KafkaSettings
 
 <div class="topic">
-    <h3>Topic <button @onclick="Sync">Sync</button></h3>
+    <h3>Topic <TopicSelector @bind-Topic="Name" /> <button @onclick="Sync">Sync</button></h3>
     <div class="partitions">
         @foreach (var partition in State.Partitions) {
             <Partition Data="@partition" />
@@ -13,6 +13,8 @@
 </div>
 
 @code {
+    public string? Name { get; set; }
+
     protected override void OnInitialized() {
         base.OnInitialized();
 
@@ -50,7 +52,7 @@
             cancellationTokenSource.Cancel();
         }).Build())
         {
-            consumer.Subscribe("topic.pruebas.con.3.particiones");
+            consumer.Subscribe(Name);
             try
             {
                 consumer.Consume(cancellationTokenSource.Token);
