@@ -28,3 +28,15 @@
 .latest-logs div:nth-last-of-type(-n+10) {
     display: inherit;
 }
+
+.error {
+    color: darkred;
+}
+
+.warning {
+    color: goldenrod;
+}
+
+.info {
+    color: dodgerblue;
+}

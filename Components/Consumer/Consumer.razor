@@ -17,7 +17,7 @@
     <div class="latest-logs">
         @foreach (var log in Logs)
         {
-            <div>
+            <div class="@(log.Severity == LogLevel.Error ? "error" : log.Severity == LogLevel.Warning ? "warning" : "info")">
                 @log
             </div>
         }
