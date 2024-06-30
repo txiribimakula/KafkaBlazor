@@ -77,12 +77,14 @@
                 Partitions = partitions.Select(partition => partition.Partition.Value);
                 IsLoading = false;
                 IsConsuming = true;
+                Logs.Add("assigned partitions [" + string.Join(",", Partitions) + "]...");
                 InvokeAsync(StateHasChanged);
             })
             .SetPartitionsRevokedHandler((consumer, partitions) =>
             {
                 Partitions = [];
                 IsConsuming = false;
+                Logs.Add("revoked partitions [" + string.Join(",", partitions.Select(partition => partition.Partition.Value)) + "]...");
             })
             .Build())
             {
@@ -94,11 +96,12 @@
                     {
                         try
                         {
-                            Logs.Add("consuming...");
+                            Logs.Add("consuming on partitions [" + string.Join(",", Partitions) + "]...");
                             InvokeAsync(StateHasChanged);
                             var consumeResult = consumer.Consume(cancellationTokenSource.Token);
                             var consumeMessage = JsonSerializer.Deserialize<Model.Message>(consumeResult.Message.Value);
-                            Logs.Add("handling...");
+                            Logs.Add("consumed from partition " + consumeResult.Partition.Value);
+                            Logs.Add("handling for " + consumeMessage.Duration + "s...");
                             InvokeAsync(StateHasChanged);
                             cancellationTokenSource.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(consumeMessage.Duration));
                             Logs.Add("handled");
