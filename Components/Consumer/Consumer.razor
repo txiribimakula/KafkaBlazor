@@ -29,7 +29,7 @@
 
     private IConsumer<Ignore, string>? consumer;
 
-    private async void Consume()
+    private async Task Consume()
     {
         cancellationTokenSource = new CancellationTokenSource();
 
@@ -79,6 +79,7 @@
                         }
 
                         consumer.Commit(consumeResult);
+                        State.Commit(consumeResult.Partition.Value, consumeMessage.Id, "temporary");
                         Log = "committed";
                         InvokeAsync(StateHasChanged);
                     }

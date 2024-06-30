@@ -25,7 +25,20 @@ public class State
     }
 
     public void AddMessage(int partitionIndex, Model.Message message) {
-        partitions[partitionIndex].Messages.Add(message);
+        message.Offset = partitions[partitionIndex].Messages.Count;
+        partitions[partitionIndex].AddMessage(message);
+        StateHasChanged();
+    }
+
+    public void Commit(int partitionIndex, Guid messageId, string groupId)
+    {
+        partitions[partitionIndex].Messages.TryGetValue(messageId, out var message);
+        var index = partitions[partitionIndex].Messages.Values.ToList().IndexOf(message);
+        if(index > 0)
+        {
+            partitions[partitionIndex].Messages.Values.ToList()[index - 1].CommittedBy.Remove(groupId);
+        }
+        message.CommittedBy.Add(groupId);
         StateHasChanged();
     }
 

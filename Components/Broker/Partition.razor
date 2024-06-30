@@ -4,9 +4,13 @@
     <h3>Partition @Data?.Index</h3>
 
     <div class="messages">
-        @foreach (var message in Data?.Messages ?? Enumerable.Empty<Model.Message>())
+        @foreach (var message in Data?.Messages ?? new Dictionary<Guid, Model.Message>())
         {
-            <Message Data="@message"/>
+            <Message Data="@message.Value"/>
+            @if (message.Value.CommittedBy.Contains("temporary"))
+            {
+                <div>Committed</div>
+            }
         }
     </div>
 </div>
