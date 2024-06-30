@@ -1,6 +1,6 @@
 ﻿@namespace BlazorApp.Components
 
-<select @bind="Topic">
+<select @onchange="OnTopicChanged">
     @foreach (var existingTopic in State.ExistingTopics)
     {
         <option value="@existingTopic">@existingTopic</option>
@@ -8,23 +8,22 @@
 </select>
 
 @code {
-    private string topic;
-
     [Parameter]
-    public string Topic
-    {
-        get
-        {
-            return topic;
-        }
-        set
-        {
-            if (topic == value) return;
-            topic = value;
-            TopicChanged.InvokeAsync(value);
-        }
-    }
+    public string Topic { get; set; } = State.ExistingTopics[0];
 
     [Parameter]
     public EventCallback<string> TopicChanged { get; set; }
+
+    private void OnTopicChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {
+            var valueToString = e.Value.ToString();
+            if(valueToString != null)
+            {
+                Topic = valueToString;
+                TopicChanged.InvokeAsync(valueToString);
+            }
+        }
+    }
 }
