@@ -6,7 +6,6 @@
 
 <div class="@(IsConsuming ? "consumer" : "consumer-inactive")">
     <h3>Consumer</h3>
-    <TopicSelector @bind-Topic="Topic" />
     <div>partitions:
         @foreach (var partition in Partitions)
         {
@@ -21,8 +20,6 @@
 @code {
     public bool IsConsuming { get; set; } = false;
     public bool IsLoading { get; set; } = false;
-
-    public string? Topic { get; set; }
 
     public IEnumerable<int> Partitions { get; set; } = new int[0];
 
@@ -76,7 +73,7 @@
         })
         .Build())
         {
-            consumer.Subscribe(Topic);
+            consumer.Subscribe(State.SingleTopic);
 
             await Task.Run(() =>
             {

@@ -9,15 +9,15 @@
     <h3>Producer</h3>
     <input type="text" placeholder="message" @bind="messageValue" disabled="@(!State.IsBrokerReady)" />
     <input type="text" placeholder="key" @bind="messageKey" disabled="@(!State.IsBrokerReady)" />
-    <TopicSelector @bind-Topic="Topic" />
-    <button @onclick="Produce" disabled="@(!State.IsBrokerReady)">Produce</button>
+    <div>
+        <button @onclick="Produce" disabled="@(!State.IsBrokerReady)">Produce</button>
+    </div>
 </div>
 
 @code {
     private IProducer<string, string>? producer;
     private string messageValue = string.Empty;
     private string messageKey = string.Empty;
-    public string? Topic { get; set; }
 
     protected override void OnInitialized()
     {
@@ -52,7 +52,7 @@
 
         var newMessage = new Model.Message(this.messageKey, this.messageValue, Guid.NewGuid());
         var produced = await producer.ProduceAsync(
-            Topic,
+            State.SingleTopic,
             new Confluent.Kafka.Message<string, string>
             {
                 Key = newMessage.Key,

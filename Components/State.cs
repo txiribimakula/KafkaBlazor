@@ -4,6 +4,8 @@ public class State
 {
     public static string[] ExistingTopics = new string[] { "topic.pruebas.con.1.particion", "topic.pruebas.con.3.particiones" };
 
+    public string? SingleTopic { get; set; }
+
     private bool isBrokerReady = false;
     public bool IsBrokerReady
     {
