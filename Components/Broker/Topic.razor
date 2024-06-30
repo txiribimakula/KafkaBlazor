@@ -27,6 +27,7 @@
 
     private void Sync() {
         State.Clear();
+        State.IsBrokerReady = false;
 
         var partitionSyncConsumerConfig = new ConsumerConfig
         {
@@ -48,6 +49,7 @@
             {
                 State.AddPartition(partition.Partition.Value);
             }
+            State.IsBrokerReady = true;
             InvokeAsync(StateHasChanged);
             cancellationTokenSource.Cancel();
         }).Build())

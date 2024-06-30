@@ -4,3 +4,11 @@
     border-style: solid;
     border-color: #008080;
 }
+
+.consumer-inactive {
+    padding: 10px;
+    background-color: #00808011;
+    border-style: solid;
+    border-color: #00808022;
+    color: #00808022;
+}

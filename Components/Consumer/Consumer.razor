@@ -4,7 +4,7 @@
 @inject KafkaSettings KafkaSettings
 @inject State State
 
-<div class="consumer">
+<div class="@(IsConsuming ? "consumer" : "consumer-inactive")">
     <h3>Consumer</h3>
     <TopicSelector @bind-Topic="Topic" />
     <div>partitions:
@@ -13,12 +13,15 @@
             @partition
         }
     </div>
-    <button @onclick="Consume">Consume</button>
-    <button @onclick="Close">Close</button>
+    <button @onclick="Consume" disabled="@(IsConsuming || !State.IsBrokerReady || IsLoading)">Consume</button>
+    <button @onclick="Close" disabled="@(!IsConsuming)">Close</button>
     <div>@Log</div>
 </div>
 
 @code {
+    public bool IsConsuming { get; set; } = false;
+    public bool IsLoading { get; set; } = false;
+
     public string? Topic { get; set; }
 
     public IEnumerable<int> Partitions { get; set; } = new int[0];
@@ -29,8 +32,22 @@
 
     private IConsumer<Ignore, string>? consumer;
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        State.StateChanged += OnStateChanged;
+    }
+
+    private void OnStateChanged(object? sender, EventArgs args)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     private async Task Consume()
     {
+        IsLoading = true;
+
         cancellationTokenSource = new CancellationTokenSource();
 
         var config = new ConsumerConfig
@@ -49,10 +66,13 @@
         .SetPartitionsAssignedHandler((consumer, partitions) =>
         {
             Partitions = partitions.Select(partition => partition.Partition.Value);
+            IsLoading = false;
+            IsConsuming = true;
             InvokeAsync(StateHasChanged);
         })
         .SetPartitionsRevokedHandler((consumer, partitions) =>
         {
+            IsConsuming = false;
         })
         .Build())
         {
