@@ -30,7 +30,7 @@
 
     public IEnumerable<int> Partitions { get; set; } = new int[0];
 
-    public List<string> Logs { get; set; } = new List<string>();
+    public List<Log> Logs { get; set; } = new List<Log>();
 
     private CancellationTokenSource? cancellationTokenSource;
 
@@ -77,14 +77,14 @@
                 Partitions = partitions.Select(partition => partition.Partition.Value);
                 IsLoading = false;
                 IsConsuming = true;
-                Logs.Add("assigned partitions [" + string.Join(",", Partitions) + "]...");
+                Logs.Add(new Log(LogLevel.Warning, "assigned partitions [" + string.Join(",", Partitions) + "]..."));
                 InvokeAsync(StateHasChanged);
             })
             .SetPartitionsRevokedHandler((consumer, partitions) =>
             {
                 Partitions = [];
                 IsConsuming = false;
-                Logs.Add("revoked partitions [" + string.Join(",", partitions.Select(partition => partition.Partition.Value)) + "]...");
+                Logs.Add(new Log(LogLevel.Warning, "revoked partitions [" + string.Join(",", partitions.Select(partition => partition.Partition.Value)) + "]..."));
             })
             .Build())
             {
@@ -96,35 +96,35 @@
                     {
                         try
                         {
-                            Logs.Add("consuming on partitions [" + string.Join(",", Partitions) + "]...");
+                            Logs.Add(new Log(LogLevel.Information, "consuming on partitions [" + string.Join(",", Partitions) + "]..."));
                             InvokeAsync(StateHasChanged);
                             var consumeResult = consumer.Consume(cancellationTokenSource.Token);
                             var consumeMessage = JsonSerializer.Deserialize<Model.Message>(consumeResult.Message.Value);
-                            Logs.Add("consumed from partition " + consumeResult.Partition.Value);
-                            Logs.Add("handling for " + consumeMessage.Duration + "s...");
+                            Logs.Add(new Log(LogLevel.Information, "consumed from partition " + consumeResult.Partition.Value));
+                            Logs.Add(new Log(LogLevel.Information, "handling for " + consumeMessage.Duration + "s..."));
                             InvokeAsync(StateHasChanged);
                             cancellationTokenSource.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(consumeMessage.Duration));
-                            Logs.Add("handled");
+                            Logs.Add(new Log(LogLevel.Information, "handled")   );
 
                             if (cancellationTokenSource.Token.IsCancellationRequested)
                             {
                                 throw new OperationCanceledException();
                             }
 
-                            Logs.Add("committing...");
+                            Logs.Add(new Log(LogLevel.Information, "committing..."));
                             consumer.Commit(consumeResult);
                             State.Commit(consumeResult.Partition.Value, consumeMessage.Id, "temporary");
-                            Logs.Add("committed");
+                            Logs.Add(new Log(LogLevel.Information, "committed"));
                             InvokeAsync(StateHasChanged);
                         }
                         catch (OperationCanceledException)
                         {
-                            Logs.Add("OperationCanceledException");
+                            Logs.Add(new Log(LogLevel.Error, "OperationCanceledException"));
                             InvokeAsync(StateHasChanged);
                         }
                         catch (KafkaException ex)
                         {
-                            Logs.Add(ex.Message);
+                            Logs.Add(new Log(LogLevel.Error, ex.Message));
                             InvokeAsync(StateHasChanged);
                         }
                     }
