@@ -7,6 +7,12 @@
 <div class="consumer">
     <h3>Consumer</h3>
     <TopicSelector @bind-Topic="Topic" />
+    <div>partitions:
+        @foreach (var partition in Partitions)
+        {
+            @partition
+        }
+    </div>
     <button @onclick="Consume">Consume</button>
     <button @onclick="Close">Close</button>
     <div>@Log</div>
@@ -14,6 +20,8 @@
 
 @code {
     public string? Topic { get; set; }
+
+    public IEnumerable<int> Partitions { get; set; } = new int[0];
 
     public string Log { get; set; } = string.Empty;
 
@@ -40,11 +48,11 @@
         using (consumer = new ConsumerBuilder<Ignore, string>(config)
         .SetPartitionsAssignedHandler((consumer, partitions) =>
         {
-            Console.WriteLine("assigned");
+            Partitions = partitions.Select(partition => partition.Partition.Value);
+            InvokeAsync(StateHasChanged);
         })
         .SetPartitionsRevokedHandler((consumer, partitions) =>
         {
-            Console.WriteLine("revoked");
         })
         .Build())
         {
@@ -80,6 +88,8 @@
                         InvokeAsync(StateHasChanged);
                     }
                 }
+
+                consumer.Close();
             });
         };
     }
