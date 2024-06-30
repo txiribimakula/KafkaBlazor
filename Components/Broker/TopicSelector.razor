@@ -1,4 +1,5 @@
 ﻿@namespace BlazorApp.Components
+@inject State State
 
 <select @onchange="OnTopicChanged">
     @foreach (var existingTopic in State.ExistingTopics)

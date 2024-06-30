@@ -5,12 +5,12 @@
 @inject State State;
 @inject KafkaSettings KafkaSettings;
 
-<div class="producer">
+<div class="@(State.IsBrokerReady ? "producer" : "producer-disabled")">
     <h3>Producer</h3>
-    <input type="text" placeholder="message" @bind="messageValue" />
-    <input type="text" placeholder="key" @bind="messageKey" />
+    <input type="text" placeholder="message" @bind="messageValue" disabled="@(!State.IsBrokerReady)" />
+    <input type="text" placeholder="key" @bind="messageKey" disabled="@(!State.IsBrokerReady)" />
     <TopicSelector @bind-Topic="Topic" />
-    <button @onclick="Produce">Produce</button>
+    <button @onclick="Produce" disabled="@(!State.IsBrokerReady)">Produce</button>
 </div>
 
 @code {
@@ -22,6 +22,8 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
+
+        State.StateChanged += OnStateChanged;
 
         var producerConfig = new ProducerConfig
         {
@@ -35,6 +37,11 @@
         };
 
         producer = new ProducerBuilder<string, string>(producerConfig).Build();
+    }
+
+    private void OnStateChanged(object? sender, EventArgs args)
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private async void Produce() {
