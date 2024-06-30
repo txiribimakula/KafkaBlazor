@@ -38,19 +38,21 @@
     }
 
     private async void Produce() {
-        if(producer != null)
+        if(producer == null)
         {
-            var newMessage = new Model.Message(this.messageKey, this.messageValue);
-            var produced = await producer.ProduceAsync(
-                Topic,
-                new Confluent.Kafka.Message<string, string>
-                    {
-                        Key = newMessage.Key,
-                        Value = JsonSerializer.Serialize(newMessage)
-                    }
-            );
-
-            State.AddMessage(produced.Partition.Value, newMessage);
+            return;
         }
+
+        var newMessage = new Model.Message(this.messageKey, this.messageValue);
+        var produced = await producer.ProduceAsync(
+            Topic,
+            new Confluent.Kafka.Message<string, string>
+                {
+                    Key = newMessage.Key,
+                    Value = JsonSerializer.Serialize(newMessage)
+                }
+        );
+
+        State.AddMessage(produced.Partition.Value, newMessage);
     }
 }
