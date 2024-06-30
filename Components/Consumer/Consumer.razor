@@ -6,14 +6,14 @@
 
 <div class="consumer">
     <h3>Consumer</h3>
-    <TopicSelector @bind-Topic="@Topic" />
+    <TopicSelector @bind-Topic="Topic" />
     <button @onclick="Consume">Consume</button>
     <button @onclick="Close">Close</button>
     <div>@Log</div>
 </div>
 
 @code {
-    public string Topic { get; set; } = State.ExistingTopics[0];
+    public string? Topic { get; set; }
 
     public string Log { get; set; } = string.Empty;
 
