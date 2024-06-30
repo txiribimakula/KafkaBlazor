@@ -1,7 +1,7 @@
 namespace BlazorApp.Model;
 
 public class Message {
-    public Message(string key, string value, Guid id)
+    public Message(string key, string value, Guid id, int duration)
     {
         Id = id;
 
@@ -9,6 +9,8 @@ public class Message {
         Value = value;
 
         CommittedBy = new HashSet<string>();
+
+        Duration = duration;
     }
 
     public string Key { get; set; }
@@ -20,4 +22,6 @@ public class Message {
     public int Offset { get; set; } = -1;
 
     public HashSet<string> CommittedBy { get; set; }
+
+    public int Duration { get; set; }
 }

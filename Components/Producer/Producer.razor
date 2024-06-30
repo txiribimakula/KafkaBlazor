@@ -14,10 +14,14 @@
     </div>
 </div>
 
+<span>Duration: </span><input type="number" @bind="messageDuration" disabled="@(!State.IsBrokerReady)" />
+
 @code {
     private IProducer<string, string>? producer;
     private string messageValue = string.Empty;
     private string messageKey = string.Empty;
+
+    private int messageDuration = 2;
 
     protected override void OnInitialized()
     {
@@ -50,7 +54,7 @@
             return;
         }
 
-        var newMessage = new Model.Message(this.messageKey, this.messageValue, Guid.NewGuid());
+        var newMessage = new Model.Message(this.messageKey, this.messageValue, Guid.NewGuid(), this.messageDuration);
         var produced = await producer.ProduceAsync(
             State.SingleTopic,
             new Confluent.Kafka.Message<string, string>

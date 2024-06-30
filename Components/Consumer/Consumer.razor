@@ -14,7 +14,14 @@
     </div>
     <button @onclick="Consume" disabled="@(IsConsuming || !State.IsBrokerReady || IsLoading)">Consume</button>
     <button @onclick="Close" disabled="@(!IsConsuming)">Close</button>
-    <div>@Log</div>
+    <div class="latest-logs">
+        @foreach (var log in Logs)
+        {
+            <div>
+                @log
+            </div>
+        }
+    </div>
 </div>
 
 @code {
@@ -23,7 +30,7 @@
 
     public IEnumerable<int> Partitions { get; set; } = new int[0];
 
-    public string Log { get; set; } = string.Empty;
+    public List<string> Logs { get; set; } = new List<string>();
 
     private CancellationTokenSource? cancellationTokenSource;
 
@@ -57,59 +64,76 @@
             GroupId = "temporary",
             AutoOffsetReset = AutoOffsetReset.Latest,
             EnableAutoCommit = false,
+            MaxPollIntervalMs = 11000,
+            SessionTimeoutMs = 10000,
+            HeartbeatIntervalMs = 3000
         };
 
-        using (consumer = new ConsumerBuilder<Ignore, string>(config)
-        .SetPartitionsAssignedHandler((consumer, partitions) =>
+        try
         {
-            Partitions = partitions.Select(partition => partition.Partition.Value);
-            IsLoading = false;
-            IsConsuming = true;
-            InvokeAsync(StateHasChanged);
-        })
-        .SetPartitionsRevokedHandler((consumer, partitions) =>
-        {
-            IsConsuming = false;
-        })
-        .Build())
-        {
-            consumer.Subscribe(State.SingleTopic);
-
-            await Task.Run(() =>
+            using (consumer = new ConsumerBuilder<Ignore, string>(config)
+            .SetPartitionsAssignedHandler((consumer, partitions) =>
             {
-                while(!cancellationTokenSource.Token.IsCancellationRequested)
+                Partitions = partitions.Select(partition => partition.Partition.Value);
+                IsLoading = false;
+                IsConsuming = true;
+                InvokeAsync(StateHasChanged);
+            })
+            .SetPartitionsRevokedHandler((consumer, partitions) =>
+            {
+                Partitions = [];
+                IsConsuming = false;
+            })
+            .Build())
+            {
+                consumer.Subscribe(State.SingleTopic);
+
+                await Task.Run(() =>
                 {
-                    try
+                    while (!cancellationTokenSource.Token.IsCancellationRequested)
                     {
-                        Log = "consuming...";
-                        InvokeAsync(StateHasChanged);
-                        var consumeResult = consumer.Consume(cancellationTokenSource.Token);
-                        var consumeMessage = JsonSerializer.Deserialize<Model.Message>(consumeResult.Message.Value);
-                        Log = "handling...";
-                        InvokeAsync(StateHasChanged);
-                        cancellationTokenSource.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(3));
-                        Log = "handled";
-
-                        if (cancellationTokenSource.Token.IsCancellationRequested)
+                        try
                         {
-                            throw new OperationCanceledException();
+                            Logs.Add("consuming...");
+                            InvokeAsync(StateHasChanged);
+                            var consumeResult = consumer.Consume(cancellationTokenSource.Token);
+                            var consumeMessage = JsonSerializer.Deserialize<Model.Message>(consumeResult.Message.Value);
+                            Logs.Add("handling...");
+                            InvokeAsync(StateHasChanged);
+                            cancellationTokenSource.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(consumeMessage.Duration));
+                            Logs.Add("handled");
+
+                            if (cancellationTokenSource.Token.IsCancellationRequested)
+                            {
+                                throw new OperationCanceledException();
+                            }
+
+                            Logs.Add("committing...");
+                            consumer.Commit(consumeResult);
+                            State.Commit(consumeResult.Partition.Value, consumeMessage.Id, "temporary");
+                            Logs.Add("committed");
+                            InvokeAsync(StateHasChanged);
                         }
-
-                        consumer.Commit(consumeResult);
-                        State.Commit(consumeResult.Partition.Value, consumeMessage.Id, "temporary");
-                        Log = "committed";
-                        InvokeAsync(StateHasChanged);
+                        catch (OperationCanceledException)
+                        {
+                            Logs.Add("OperationCanceledException");
+                            InvokeAsync(StateHasChanged);
+                        }
+                        catch (KafkaException ex)
+                        {
+                            Logs.Add(ex.Message);
+                            InvokeAsync(StateHasChanged);
+                        }
                     }
-                    catch (OperationCanceledException)
-                    {
-                        Log = "OperationCanceledException";
-                        InvokeAsync(StateHasChanged);
-                    }
-                }
 
-                consumer.Close();
-            });
-        };
+                    consumer.Close();
+                });
+            };
+        }
+        catch(Exception ex)
+        {
+            
+        }
     }
 
     private void Close()
